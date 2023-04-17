@@ -4,6 +4,7 @@ const jsonHandler = require("./json-handler");
 const path = require("path");
 
 const app = express();
+app.use(express.json());
 
 app.use("/public", express.static("public"));
 
@@ -25,15 +26,20 @@ app.get("/api/user/:id", (req, res) => {
 });
 
 app.post("/api/user", (req, res) => {
-  const newJsonPath = "users";
+  const dataPath = "users";
 
-  const newId = fs.readdirSync(newJsonPath).length + 1;
+  const latestId = jsonHandler.readJSON("users", "id.json");
 
-  const jsonPath = [newJsonPath, `${newId}.json`];
+  const newId = latestId.id + 1;
 
-  const newPost = jsonHandler.createJSON(jsonPath, {
-    newContent: false,
-  });
+  jsonHandler.updateJSON(["users", "id.json"], { id: newId });
+
+  const jsonPath = [dataPath, `${newId}.json`];
+
+  const content = { id: newId, ...req.body };
+
+  const newPost = jsonHandler.createJSON(jsonPath, content);
+
   res.end(newPost);
 });
 
@@ -48,11 +54,11 @@ app.put("/api/user/:id", (req, res) => {
 
 app.patch("/api/user/:id", (req, res) => {
   const userId = req.params.id;
-  const userData = jsonHandler.updateJSON(["users", `${userId}.json`], {
-    teste: false,
-  });
-  console.log(userData);
-  res.end(req.body);
+  const userData = jsonHandler.updateJSON(
+    ["users", `${userId}.json`],
+    req.body
+  );
+  res.json(req.body);
 });
 
 app.delete("/api/user/:id", (req, res) => {
