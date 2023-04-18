@@ -1,4 +1,6 @@
-PUT http://localhost:8080/api/user/1
+PUT http://localhost:8080/api/user/2
 Content-Type: application/json
 
-{teste: true}
+{
+    "teste": true
+}
