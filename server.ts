@@ -134,6 +134,30 @@ app.get("/iphone/nao", (req, res) => {
   res.redirect(302, "https:google.com");
 });*/
 
+//exercício 5.18
+app.get("/carts", (req: Request, res: Response) => {
+  const minPrice = Number(req.query.min_price);
+  const maxPrice = Number(req.query.max_price);
+
+  const jsonCarts = JSON.parse(fs.readFileSync("carts.json").toString());
+
+  const cartsList = jsonCarts.carts.map((cart: []) => {
+    return cart;
+  });
+
+  const productsList = cartsList.map((item: any) => {
+    return item.products.filter((item: any) => {
+      if (item.price >= minPrice && item.price <= maxPrice) {
+        return item;
+      }
+    });
+  });
+
+  console.log(productsList.filter((item: any) => item !== null));
+
+  res.end(`${minPrice} ${maxPrice}`);
+});
+
 app.listen(8080, () => {
   console.log("server running");
 });
