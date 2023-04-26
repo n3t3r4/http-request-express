@@ -2,6 +2,7 @@ import * as fs from "fs";
 import express, { Request, Response } from "express";
 import * as jsonHandler from "./json-handler";
 import path from "path";
+import { userSort } from "./users-sort";
 
 const app = express();
 app.use(express.json());
@@ -141,6 +142,24 @@ app.get("/carts", (req: Request, res: Response) => {
 
   const jsonCarts = JSON.parse(fs.readFileSync("carts.json").toString());
 
+  const cartsList = jsonCarts.carts.map((cart: any) => {
+    return cart.products;
+  });
+
+  const productsCarts = cartsList.flat().filter((item: any) => {
+    if (item.price >= minPrice && item.price <= maxPrice) {
+      return item.price;
+    }
+  });
+
+  const productsCartsSort = productsCarts.sort(
+    (a: any, b: any) => a.price - b.price
+  );
+
+  res.json(productsCartsSort);
+
+  /*
+  //SOLUÇÃO WELLIGTON 19/04
   const cartsList = jsonCarts.carts.map((cart: []) => {
     return cart;
   });
@@ -153,9 +172,131 @@ app.get("/carts", (req: Request, res: Response) => {
     });
   });
 
-  console.log(productsList.filter((item: any) => item !== null));
+  //ordernar e verificar a quantidade de nulos
+  //sort()
 
-  res.end(`${minPrice} ${maxPrice}`);
+  //pular o numero de nulos
+  //slice()
+
+  console.log(productsList); */
+});
+
+/* //Exercício 5.19
+app.get("/numeros", (req: Request, res: Response) => {
+  const min = Number(req.query.min);
+  const max = Number(req.query.max);
+  let impar = req.query.impares;
+
+  function isOdd(num: number) {
+    return num % 2 !== 0;
+  }
+
+  let numbers = [];
+
+  for (let number = min; number <= max; number++) {
+    if (impar != null) {
+      if (isOdd(number)) {
+        numbers.push(number);
+      } else {
+        null;
+      }
+    } else {
+      numbers.push(number);
+    }
+  }
+
+  console.log(`min:${min} max:${max} \n(${numbers})`);
+}); */
+
+//Exercício 5.20
+app.get("/users", (req: Request, res: Response) => {
+  const orderBy = req.query.order_by;
+  const direction = req.query.direction;
+
+  console.log(orderBy);
+  console.log(direction);
+
+  const usersJson = JSON.parse(fs.readFileSync("users.json").toString());
+
+  if (orderBy === "age") {
+    if (direction === "asc") {
+      usersJson.users.sort((a: any, b: any) => a.age - b.age);
+    } else if (direction === "desc") {
+      usersJson.users.sort((a: any, b: any) => b.age - a.age);
+    }
+  }
+
+  if (orderBy === "birthDate") {
+    if (direction === "asc") {
+      usersJson.users.sort((a: any, b: any) => {
+        if (a.birthDate > b.birthDate) {
+          return -1;
+        }
+        if (a.birthDate < b.birthDate) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    if (direction === "desc") {
+      usersJson.users.sort((a: any, b: any) => {
+        if (a.birthDate > b.birthDate) {
+          return 1;
+        }
+        if (a.birthDate < b.birthDate) {
+          return -1;
+        }
+        return 0;
+      });
+    }
+  }
+
+  if (orderBy === "height") {
+    if (direction === "asc") {
+      usersJson.users.sort((a: any, b: any) => a.height - b.height);
+    } else if (direction === "desc") {
+      usersJson.users.sort((a: any, b: any) => b.height - a.height);
+    }
+  }
+
+  if (orderBy === "weight") {
+    if (direction === "asc") {
+      usersJson.users.sort((a: any, b: any) => a.weight - b.weight);
+    } else if (direction === "desc") {
+      usersJson.users.sort((a: any, b: any) => b.weight - a.weight);
+    }
+  }
+
+  res.json(usersJson);
+
+  //solução welligton
+  /* type ObjectKey = keyof typeof usersJson.users;
+
+  const orderByFinal = orderBy as ObjectKey;
+
+  console.log(orderByFinal);
+
+  console.log(typeof orderByFinal);
+
+  const keys = Object.keys(usersJson.users[0]);
+
+  console.log(keys);
+
+  const userListSort = usersJson.users.sort((a: any, b: any) => {
+    const teste = a.orderByFinal;
+    const testeB = b.orderByFinal;
+
+    if (teste < testeB) {
+      return -1;
+    }
+    if (teste > testeB) {
+      return 1;
+    }
+    return 0;
+  });
+ */
+
+  /* console.log(`${orderBy} ${direction}`); */
 });
 
 app.listen(8080, () => {

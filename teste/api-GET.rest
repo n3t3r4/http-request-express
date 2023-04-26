@@ -1,1 +1,1 @@
-get http://localhost:8080/carts?min_price=5&max_price=34
+get http://localhost:8080/users?order_by=weight&direction=asc
